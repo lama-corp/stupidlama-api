@@ -1,8 +1,8 @@
 {
-  "name": "nest-typescript-starter",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Nest TypeScript starter repository",
+  "name": "stupidlama-api",
+  "private": false,
+  "version": "0.1.0",
+  "description": "Stupid Lama API",
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
