@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { AppService } from './app.service';
+import { YoutubeVideo } from './app.types';
 
 @Controller()
 export class AppController {
@@ -8,5 +9,10 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('video/:id')
+  async getYoutubeVideo(@Param() params): Promise<YoutubeVideo> {
+    return await this.appService.getYoutubeVideo(params.id);
   }
 }

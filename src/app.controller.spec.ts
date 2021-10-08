@@ -19,10 +19,10 @@ describe('AppController', () => {
     });
   });
 
-  describe('getHello2', () => {
+  describe('getYoutubeVideo', () => {
     it('should return "Hello World!"', () => {
       const appController = app.get<AppController>(AppController);
-      expect(appController.getHello()).toBe('Hello World!');
+      // expect(appController.getYoutubeVideo()).toBe('Hello World!');
     });
   });
 });
