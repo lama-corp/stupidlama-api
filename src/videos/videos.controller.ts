@@ -14,6 +14,6 @@ export class VideosController {
 
   @Post()
   async create(@Body() createVideoDto: CreateVideoDto) {
-    await this.videosService.create(createVideoDto);
+    return await this.videosService.create(createVideoDto);
   }
 }

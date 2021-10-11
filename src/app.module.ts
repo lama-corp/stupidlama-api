@@ -6,14 +6,15 @@ import { VideosModule } from './videos/videos.module';
 import { CreatorsModule } from './creators/creators.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DatabaseModule } from './shared/database/database.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env'],
+      envFilePath: [`${process.env.NODE_ENV}.env`],
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/lama'),
+    DatabaseModule,
     SharedModule,
     VideosModule,
     CreatorsModule,
