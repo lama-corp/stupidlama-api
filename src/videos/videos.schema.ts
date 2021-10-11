@@ -33,4 +33,4 @@ export class Video {
   categoryId: number;
 }
 
-export const VideoSchema = SchemaFactory.createForClass(Video);
+export const VideosSchema = SchemaFactory.createForClass(Video);
