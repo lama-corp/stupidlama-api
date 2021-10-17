@@ -1,11 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from './shared/shared.module';
 import { VideosModule } from './videos/videos.module';
-import { CreatorsModule } from './creators/creators.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ChannelsModule } from './channels/channels.module';
 import { DatabaseModule } from './shared/database/database.module';
 
 @Module({
@@ -17,9 +14,9 @@ import { DatabaseModule } from './shared/database/database.module';
     DatabaseModule,
     SharedModule,
     VideosModule,
-    CreatorsModule,
+    ChannelsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

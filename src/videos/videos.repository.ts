@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-
 import { Video, VideoDocument } from './videos.schema';
-import { CreateVideoDto } from './dto/create-video.dto';
+import { VideoDto } from './dto/video.dto';
 
 @Injectable()
 export class VideosRepository {
@@ -19,8 +18,17 @@ export class VideosRepository {
     return this.videoModel.find(videosFilterQuery);
   }
 
-  async create(video: CreateVideoDto): Promise<Video> {
-    const newVideo = new this.videoModel(video);
-    return newVideo.save();
+  async create(videoDto: VideoDto): Promise<Video> {
+    const video = new this.videoModel(videoDto);
+    return video.save();
+  }
+
+  async findOneAndUpdate(
+    videoFilterQuery: FilterQuery<VideoDocument>,
+    video: Partial<Video>,
+  ): Promise<Video> {
+    return this.videoModel.findOneAndUpdate(videoFilterQuery, video, {
+      new: true,
+    });
   }
 }

@@ -6,22 +6,16 @@ export type VideoDocument = Video & Document;
 @Schema()
 export class Video {
   @Prop()
-  name: string;
+  id: string;
 
   @Prop()
-  age: number;
-
-  @Prop()
-  viewCount: number;
-
-  @Prop()
-  likeCount: number;
-
-  @Prop()
-  dislikeCount: number;
+  platformId: string;
 
   @Prop()
   title: string;
+
+  @Prop()
+  hidden: boolean;
 
   @Prop()
   description: string;
@@ -31,6 +25,15 @@ export class Video {
 
   @Prop()
   categoryId: number;
+
+  @Prop()
+  viewCount: number;
+
+  @Prop()
+  likeCount: number;
+
+  @Prop()
+  dislikeCount: number;
 }
 
 export const VideosSchema = SchemaFactory.createForClass(Video);

@@ -1,53 +1,115 @@
 import * as request from 'supertest';
-import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
+import {
+  importVideoDtoStub,
+  videoFalsyStub,
+  videoStub,
+} from './stubs/video.stub';
+import { initTestingModule } from './utils/module-mount.util';
 import { VideosModule } from '../src/videos/videos.module';
-import { INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { DatabaseService } from '../src/shared/database/database.service';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { videoStub } from './stubs/video.stub';
 
 describe('VideoController e2e', () => {
-  let app: INestApplication;
   let dbConnection: Connection;
   let httpServer: any;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          envFilePath: ['.env'],
-          isGlobal: true,
-        }),
-        DatabaseModule,
-        VideosModule,
-      ],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-    dbConnection = moduleFixture
-      .get<DatabaseService>(DatabaseService)
-      .getDbHandle();
-    httpServer = app.getHttpServer();
+    const result: any = await initTestingModule(VideosModule);
+    dbConnection = result.dbConnection;
+    httpServer = result.httpServer;
   });
 
   beforeEach(async () => {
     await dbConnection.collection('videos').deleteMany({});
   });
 
-  it('/videos (GET)', () => {
-    return request(httpServer).get('/videos').expect(200).expect([]);
+  it('/videos (GET many)', async () => {
+    await dbConnection.collection('videos').insertOne(videoStub);
+    const response = await request(httpServer).get('/videos');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject([videoStub]);
   });
 
-  it('/videos (POST)', () => {
+  it('/videos/:id (GET one)', async () => {
+    await dbConnection.collection('videos').insertOne(videoStub);
+    const response = await request(httpServer).get(`/videos/${videoStub.id}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject(videoStub);
+  });
+
+  it('/videos/import-from-platform (POST)', async () => {
     return request(httpServer)
-      .post('/videos')
-      .send(Object.assign({}, videoStub))
+      .post('/videos/import-from-platform')
+      .send(Object.assign({}, importVideoDtoStub))
       .expect(201)
       .then((response) => {
-        expect(response.body).toEqual(expect.objectContaining(videoStub));
+        expect(response.body).toEqual(
+          expect.objectContaining({
+            title: videoStub.title,
+            categoryId: videoStub.categoryId,
+          }),
+        );
+      });
+  });
+
+  it('/videos/:id/hide (put - hide)', async () => {
+    await dbConnection.collection('videos').insertOne(videoStub);
+    const video = await dbConnection
+      .collection('videos')
+      .findOne({ id: videoStub.id });
+    expect(video.hidden).toBe(false);
+
+    return request(httpServer)
+      .put(`/videos/${videoStub.id}/hide`)
+      .expect(204)
+      .then(async () => {
+        const video = await dbConnection
+          .collection('videos')
+          .findOne({ id: videoStub.id });
+        expect(video.hidden).toBe(true);
+      });
+  });
+
+  it('/videos/:id/show (put - display)', async () => {
+    await dbConnection
+      .collection('videos')
+      .insertOne({ ...videoStub, hidden: true });
+    const video = await dbConnection
+      .collection('videos')
+      .findOne({ id: videoStub.id });
+    expect(video.hidden).toBe(true);
+
+    return request(httpServer)
+      .put(`/videos/${videoStub.id}/show`)
+      .expect(204)
+      .then(async () => {
+        const video = await dbConnection
+          .collection('videos')
+          .findOne({ id: videoStub.id });
+        expect(video.hidden).toBe(false);
+      });
+  });
+
+  it('/videos/:id/refresh-from-platform (put - refreshData)', async () => {
+    // All fields are not tested as some of them change through time (stats for example)
+    await dbConnection.collection('videos').insertOne(videoFalsyStub);
+
+    const video = await dbConnection
+      .collection('videos')
+      .findOne({ id: videoStub.id });
+    expect(video.title).toBe('test');
+
+    return request(httpServer)
+      .put(`/videos/${videoStub.id}/refresh-from-platform`)
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toEqual(
+          expect.objectContaining({
+            title: videoStub.title,
+            categoryId: videoStub.categoryId,
+          }),
+        );
       });
   });
 });
